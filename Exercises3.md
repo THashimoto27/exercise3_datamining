@@ -1,0 +1,75 @@
+<!--   pdf_document: default
+ md_document -->
+
+\#1) What causes what?
+
+## 1-1 Why we can’t regress crime on police?
+
+Because we can’t misunderstand the causal effect between crime and
+police. As the podcast said, in Washington DC, a lot of extra police
+officers are hired even if the crime rate is low because of preparing
+terrorism. However, in general, high crime cities have an incentive to
+hire a lot of cops. Therefore, if you regress crime on police in a few
+different cities like DC, you probably misunderstand the effect. So you
+can’t do this.
+
+## 1-2 How can a professor identify the causal effect?
+
+They found that when the terror alert level goes up, extra police are
+put on the mall in other parts of Washington to protect against
+terrorists has nothing to do with street crime. Also then, the streets
+were safer(the number of murder, robbery, assault goes down).
+
+To show this causality, they regressed the crime on the High Alert, and
+got the result of the Table 2. This background of the regression is as
+follow:
+
+At first, they thought this structure, where the outcome *y* is crime, a
+variable that want to shows the causality *x*, and a instrument variable
+*z* is the High Alert.
+
+<img src="./fig/1.png" width="40%" style="display: block; margin: auto;" />
+
+Because of the endogeneity, they cannot direct regress *y* on *x*, but
+they selected the High Alert as *z* that is positive correlated with
+*x*. And then they used regress *y* on *z* with reduced form like:
+
+$$
+\begin{aligned}
+y\_{crime}=\gamma\_0+\gamma\_1z\_{\\{High\\ Alert\\}}+\varepsilon
+\end{aligned}
+$$
+
+where *β*<sub>1</sub>*π*<sub>1</sub> and
+*x*<sub>*p**o**l**i**c**e*</sub> = *π*<sub>0</sub> + *π*<sub>1</sub>*z*<sub>{*H**i**g**h* *A**l**e**r**t*}</sub> + *v*.
+Since the *x* and *z* are positive correlated, the coefficient of the
+High Alert on Table 2 shows *β*<sub>1</sub> &lt; 0. This means that on
+the high-alert days, total crimes decrease by an average of seven crimes
+per day, or approximately 6.6 percent. Also, it means that the more
+police causes the less crime.
+
+## 1-3 Why Metro ridership? What was captured?
+
+According to their talks, they concerned about the possibility that
+tourist were less likely to visit Washington DC if the High Alert was
+announced, and what tourist were less likely to visit caused less crime.
+To check this hypothesis, they added a variable of the scaled Metro
+Ridership into the regression model.
+
+And then, they found that the coefficient of the High Alert is still
+negative even if they added its variable. Therefore, they concluded that
+if the same number of tourists, the more police causes the less crime as
+well as the result 1-2.
+
+### 1-4
+
+This model is DID model, which control group is other district and
+treatment group is District 1.
+
+And, the difference between the High Alert × District One and the High
+Alert × Other Districts coefficients represents the effect of District 1
+on the crime under the setting that controls for all common factors
+between the districts. They founr that even after controlling for all
+such factors and recognizing that our assumption is too strong, we still
+find that crime decreases in District 1 during high-alert periods by
+some two crimes per day, or more than 12 percent.
