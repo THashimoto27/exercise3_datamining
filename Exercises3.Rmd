@@ -101,6 +101,7 @@ $$
 total\ cases = city + season + specific_humidity+tdtr_k+precipitation_amt
 \end{aligned}
 $$
+
 Note: we did not take log for total cases because we thought total cases did not look like it had any trend term as follow:
 ```{r , echo=FALSE,fig.width =5.5, fig.height = 2,fig.align='center',eval=FALSE,}
 png("./fig/totalcase.png")
@@ -276,6 +277,7 @@ RPS&=\beta_0+\beta(cluster + size +  empl_gr + stories + age +renovated + class_
 & +cluster \times stories+size \times stories +stories \times age)
 \end{aligned}
 $$
+
 ### 3-2 Comparison
 
 ```{r , echo=FALSE,fig.width =5.5, fig.height = 2,fig.align='center',eval=FALSE}

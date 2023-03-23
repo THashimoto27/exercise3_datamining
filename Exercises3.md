@@ -98,6 +98,7 @@ $$
 total\\ cases = city + season + specific\_humidity+tdtr\_k+precipitation\_amt
 \end{aligned}
 $$
+
 Note: we did not take log for total cases because we thought total cases
 did not look like it had any trend term as follow:
 
@@ -241,7 +242,8 @@ RPS&=\beta\_0+\beta(cluster + size +  empl\_gr + stories + age +renovated + clas
 & +cluster \times stories+size \times stories +stories \times age)
 \end{aligned}
 $$
-\### 3-2 Comparison
+
+### 3-2 Comparison
 
 From the results, we got the rmse of the linear, knn, CART, Forest,
 Boost, which are
