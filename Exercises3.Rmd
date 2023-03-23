@@ -98,7 +98,7 @@ We took CART, random forests, and gradient-boosted trees to predict dengue cases
 
 $$
 \begin{aligned}
-total\ cases = city + season + specific_humidity+tdtr_k+precipitation_amt
+total\ cases = city + season + specific\ humidity+tdtr\ k+precipitation\ amt
 \end{aligned}
 $$
 

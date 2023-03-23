@@ -95,7 +95,7 @@ dengue cases as follow:
 
 $$
 \begin{aligned}
-total\\ cases = city + season + specific\_humidity+tdtr\_k+precipitation\_amt
+total\\ cases = city + season + specific\\ humidity+tdtr\\ k+precipitation\\ amt
 \end{aligned}
 $$
 
