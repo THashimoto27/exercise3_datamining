@@ -298,3 +298,64 @@ The optimal coefficients in the stepwise function
 <img src="./fig/table.png" width="80%" height="50%" style="display: block; margin: auto;" />
 
 # Predictive model building: California housing
+
+## 1. Overview
+
+-   My goal is to build the best predictive model you can for
+    medianHouseValue
+
+## 2. Data and Model
+
+### 2-1 Data
+
+-   CAhousing.csv
+
+### 2-2 Model
+
+We took 2 steps to get the best predictive model as follow:
+
+### 2-2-1 Model Selection
+
+At first, we did the stepwise selection and the Lasso regression to find
+independent variables that we should include the model. After we got
+both results, we compared two rmses and decided to include variables
+that has the lower rmse.
+
+### 2-2-2 Compared Regressions and Trees
+
+After we decided to use dependent variables in this model, we compared
+models of the “linear regression” and “Knn regression” and the models of
+the “CART”, “Random Forest” and “Boost” from the perspective of the RMSE
+with K-CV(10 folds).
+
+Note: in Tree models, we did not specify dependent variables like linear
+and knn regression, because they automatically consider interaction
+terms.
+
+### 2-3 Results
+
+The overall out-of-sample accuracy of our proposed model is
+
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">CA_RFM1_rmse</th>
+<th style="text-align: right;">CA_RFM2_rmse</th>
+<th style="text-align: right;">CA_RFM3_rmse</th>
+<th style="text-align: right;">CA_Boost_rmse</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">48630.96</td>
+<td style="text-align: right;">48572.76</td>
+<td style="text-align: right;">47998.16</td>
+<td style="text-align: right;">51663.24</td>
+</tr>
+</tbody>
+</table>
+
+Also, the three fugutres that required to be plotted (1)a plot of the
+original data, (2)a plot of your model’s predictions of
+medianHouseValue, (3)a plot of your model’s errors/residuals are:
+<img src="./fig/CA_org.png" width="30%" height="70%" style="display: block; margin: auto;" /><img src="./fig/CA_yhat.png" width="30%" height="70%" style="display: block; margin: auto;" /><img src="./fig/CA_resid.png" width="30%" height="70%" style="display: block; margin: auto;" />

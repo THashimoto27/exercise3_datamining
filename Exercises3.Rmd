@@ -398,3 +398,128 @@ knitr::include_graphics(c("./fig/table.png"))
 \newpage
 
 # Predictive model building: California housing
+
+## 1. Overview
+
+- My goal is to build the best predictive model you can for medianHouseValue
+
+## 2. Data and Model
+
+### 2-1 Data
+
+-  CAhousing.csv
+
+### 2-2 Model
+
+We took 2 steps to get the best predictive model as follow:
+
+### 2-2-1 Model Selection
+
+At first, we did the stepwise selection and the Lasso regression to find independent variables that we should include the model. After we got both results, we compared two rmses and decided to include variables that has the lower rmse.
+
+
+### 2-2-2 Compared Regressions and Trees
+
+After we decided to use dependent variables in this model, we compared models of the "linear regression" and "Knn regression" and the  models of the "CART", "Random Forest" and "Boost" from the perspective of the RMSE with K-CV(10 folds).
+
+Note: in Tree models, we did not specify dependent variables like linear and knn regression, because they automatically consider interaction terms.
+
+### 2-3 Results
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide',eval=FALSE}
+CAhousing = read.csv('CAhousing.csv')
+
+CAhousing1 = CAhousing %>%
+  mutate(totalRooms_st = totalRooms/households) %>%
+  mutate(totalBedrooms_st = totalBedrooms/households)
+set.seed(1208)
+CAhousing1_split =  initial_split(CAhousing1, prop=0.8)
+CAhousing1_split_train = training(CAhousing1_split)
+CAhousing1_split_test  = testing(CAhousing1_split)
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide',eval=FALSE}
+forest_CA1 = randomForest(medianHouseValue ~ . ,
+                       data=CAhousing1_split_train, na.action = na.exclude)
+# a variable importance plot: how much SSE decreases from including each var
+varImpPlot(forest_CA1)
+rmse_CA1 = modelr::rmse(forest_CA1, CAhousing1_split_test)
+  
+##Now we adjust the model based on the important plot
+forest_CA2 = randomForest(medianHouseValue ~ medianIncome + longitude + latitude + totalRooms_st  ,
+                       data=CAhousing1_split_train, na.action = na.exclude)
+rmse_CA2 = modelr::rmse(forest_CA2, CAhousing1_split_test)
+
+##a third adjusted model
+forest_CA3 = randomForest(medianHouseValue ~ medianIncome + longitude + latitude + totalRooms_st + population + housingMedianAge ,data=CAhousing1_split_train, na.action = na.exclude) 
+rmse_CA3 = modelr::rmse(forest_CA3, CAhousing1_split_test)  # The lowest value
+
+##Let's try gradient boosting model
+boost_CA = gbm(medianHouseValue ~ medianIncome + longitude + latitude + totalRooms_st + population + housingMedianAge, 
+             data = CAhousing1_split_train,
+             interaction.depth=4, n.trees=350, shrinkage=.08)
+rmse_boost = modelr::rmse(boost_CA, CAhousing1_split_test)  # not better than CA3
+  
+##I select CA3 model to be the optimal one
+yhat_test_CA3 = predict(forest_CA3, CAhousing1_split_test)
+
+##create new columns for the predicted values and residuals
+CAhousing1_split_test1 = CAhousing1_split_test %>%
+  mutate(yhat = yhat_test_CA3) 
+CAhousing1_split_test1 = CAhousing1_split_test1 %>%  
+mutate (resid =  medianHouseValue - yhat)
+
+CA_models_summary = data.frame(
+CA_RFM1_rmse = rmse_CA1,
+CA_RFM2_rmse = rmse_CA2,
+CA_RFM3_rmse = rmse_CA3,
+CA_Boost_rmse = rmse_boost)
+CA_models_summary
+```
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide',eval=FALSE}
+CA_plot_org = ggplot(CAhousing1) +
+ aes(x = longitude, y = latitude, colour = medianHouseValue) +
+ geom_point(shape = "circle", 
+ size = 1.5) + 
+ labs(title = "California Median House Value", 
+ subtitle = "Original Data Plot") +
+ theme_minimal() + scale_color_continuous(labels = scales::comma)
+CA_plot_yhat = ggplot(CAhousing1_split_test1) +
+ aes(x = longitude, y = latitude, colour = yhat) +
+ geom_point(shape = "circle", 
+ size = 1.5)  +
+ labs(title = "California Median House Value", 
+ subtitle = "Predicted Plot") +
+ theme_minimal() + scale_color_continuous(labels = scales::comma)
+CA_plot_resid = ggplot(CAhousing1_split_test1) +
+ aes(x = longitude, y = latitude, colour = resid) +
+ geom_point(shape = "circle", 
+ size = 1.5) +
+ labs(title = "California Median House Value", subtitle = "Residuals Plot") +
+ theme_minimal() + scale_color_continuous(labels = scales::comma)
+#png("./fig/CA_org.png")
+#CA_plot_org
+#dev.off()
+#png("./fig/CA_yhat.png")
+#CA_plot_yhat
+#dev.off()
+#png("./fig/CA_resid.png")
+#CA_plot_resid
+#dev.off()
+```
+
+The overall out-of-sample accuracy of our proposed model is
+```{r, echo=FALSE,out.width ="30%", out.height = "70%",fig.align='center',fig.show="hold"}
+knitr::kable(cbind(CA_RFM1_rmse=48630.96, CA_RFM2_rmse=48572.76,CA_RFM3_rmse=47998.16, CA_Boost_rmse= 51663.24))
+```
+
+Also, the three fugutres that required to be plotted (1)a plot of the original data, (2)a plot of your model's predictions of medianHouseValue, (3)a plot of your model's errors/residuals are:
+```{r, echo=FALSE,out.width ="30%", out.height = "70%",fig.align='center',fig.show="hold"}
+knitr::include_graphics("./fig/CA_org.png")
+knitr::include_graphics("./fig/CA_yhat.png")
+knitr::include_graphics("./fig/CA_resid.png")
+```
+
+
+
