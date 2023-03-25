@@ -312,25 +312,35 @@ The optimal coefficients in the stepwise function
 
 ### 2-2 Model
 
-We took 2 steps to get the best predictive model as follow:
+We took 3 steps to get the best predictive model as follow:
 
-### 2-2-1 Model Selection
+we have used machine learning tools to provide with reliable
+predictions. So, we have used the random forest model, which utilizes
+the interaction effects of the variables.
 
-At first, we did the stepwise selection and the Lasso regression to find
-independent variables that we should include the model. After we got
-both results, we compared two rmses and decided to include variables
-that has the lower rmse.
+1.  I mutated to new columns to standardized the total rooms and total
+    bedrooms by dividing each variable by households variable. Then, I
+    split the data into 80% training set and 20% testing set and regress
+    medianHousevalue on all the variables to test for the importance of
+    each variables afterward.
 
-### 2-2-2 Compared Regressions and Trees
+2.  we did two other specification models with different variables based
+    on the results of the variables importance.
 
-After we decided to use dependent variables in this model, we compared
-models of the “linear regression” and “Knn regression” and the models of
-the “CART”, “Random Forest” and “Boost” from the perspective of the RMSE
-with K-CV(10 folds).
+$$
+\begin{aligned}
+Model1:\quad medianHouseValue&= \beta\[all\\ data+const.\]\\\\
+Model2:\quad medianHouseValue&= \beta\[ medianIncome + longitude + latitude + totalRooms\_{st}+const.\] \\\\
+Model3:\quad medianHouseValue&= \beta\[ medianIncome + longitude + latitude + totalRooms\_{st} + population + housingMedianAge+const.\] \\\\
+\end{aligned}
+$$
+\* totalRooms\_st = totalRooms/households
 
-Note: in Tree models, we did not specify dependent variables like linear
-and knn regression, because they automatically consider interaction
-terms.
+1.  model has the lowest root mean squared error which equals to 47,989.
+
+In order to check for room of improvements, we ran a gradient boosting
+model with many different shrinkage rates, but we could not have a lower
+rmse value than that found using the selected random forest model.
 
 ### 2-3 Results
 
@@ -358,4 +368,5 @@ The overall out-of-sample accuracy of our proposed model is
 Also, the three fugutres that required to be plotted (1)a plot of the
 original data, (2)a plot of your model’s predictions of
 medianHouseValue, (3)a plot of your model’s errors/residuals are:
-<img src="./fig/CA_org.png" width="30%" height="70%" style="display: block; margin: auto;" /><img src="./fig/CA_yhat.png" width="30%" height="70%" style="display: block; margin: auto;" /><img src="./fig/CA_resid.png" width="30%" height="70%" style="display: block; margin: auto;" />
+
+<img src="./fig/CA_org.png" width="50%" height="70%" style="display: block; margin: auto;" /><img src="./fig/CA_yhat.png" width="50%" height="70%" style="display: block; margin: auto;" /><img src="./fig/CA_resid.png" width="50%" height="70%" style="display: block; margin: auto;" />
