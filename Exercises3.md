@@ -76,10 +76,15 @@ some two crimes per day, or more than 12 percent.
 
 # 2) Tree modeling:dengue cases
 
+\*\* for Q2-Q3, other ways that a member did are there
+[Here](Exercise3_1.md)
+
 ## 1. Overview
 
 -   Our goal is to use CART, random forests, and gradient-boosted trees
-    to predict dengue cases
+    to predict dengue cases. From the best predictive model, we need to
+    make three partial dependence plots on specific\_humidity,
+    precipitation\_amt & one variable of our choice.
 
 ## 2. Data and Model
 
@@ -99,203 +104,163 @@ total\\ cases = city + season + specific\\ humidity+tdtr\\ k+precipitation\\ amt
 \end{aligned}
 $$
 
-Note: we did not take log for total cases because we thought total cases
-did not look like it had any trend term as follow:
+## 3. Results
 
-<img src="./fig/totalcase.png" width="40%" height="40%" style="display: block; margin: auto;" /><img src="./fig/logtotalcase.png" width="40%" height="40%" style="display: block; margin: auto;" />
-Note: the left side shows the total case and right side does the
-logarithm of the the total case.
-
-## 3. Results and Conclusion
+We have used CART, random forests, and gradient-boosted tree models to
+predict the dengue cases below.
 
 From the result, these rmse of there models are
 
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: right;">cart</th>
-<th style="text-align: right;">forest</th>
-<th style="text-align: right;">boost</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: right;">24.5693</td>
-<td style="text-align: right;">22.40354</td>
-<td style="text-align: right;">18.50443</td>
-</tr>
-</tbody>
-</table>
+Based on the out of sample RMSE, the Gaussian Booster model seems to
+have the best prediction power.
 
-Therefore, the best model to predict dengue cases in this analysis is
-the gradient-boosted trees.
+**Now we plot the partial dependence of 4 variables.**
 
-Also, three partial dependence plots on specific\_humidity,
-precipitation\_amt and city in the boost model are
+<img src="./fig/specific_humidity1.png" width="30%" height="50%" style="display: block; margin: auto;" /><img src="./fig/precipitation_amt1.png" width="30%" height="50%" style="display: block; margin: auto;" /><img src="./fig/season1.png" width="30%" height="50%" style="display: block; margin: auto;" /><img src="./fig/city1.png" width="30%" height="50%" style="display: block; margin: auto;" />
 
-<img src="./fig/specific_humidity.png" width="30%" height="50%" style="display: block; margin: auto;" /><img src="./fig/precipitation_amt.png" width="30%" height="50%" style="display: block; margin: auto;" /><img src="./fig/city.png" width="30%" height="50%" style="display: block; margin: auto;" />
+The graphs above show the partial dependence (marginal effects) of the
+chosen variables on total cases of dengue based on the Gaussian boosting
+model.From the partial dependence plot, we see that the specific
+humidity shows an interesting pattern on predicted dengue cases. When
+humidity level is more than 15 gram of water per kg of air, the humidity
+level increases the dengue cases.From 18 gram to 19 gram of humidity
+level, the dengue cases increases exponentially with the level of
+humidity. However, the dengue cases slows down and plateau after 20 gram
+level. Dengue cases shows fluctuating pattern with respect to the Amount
+of rainfall per week. The dengue cases reach peak when rainfall is at 75
+milimeters. At a rainfall level more than 200 milimeter, the dengue
+cases plateau. The dengue cases are severe during the Fall season and
+least severe during spring season.
 
-From these graphs, we can get some interpretations in the following: -
-If average specific humidity(specific\_humidity) is over about 19, total
-cases will increase by 40 - Rainfall for the week in millimeters does
-not relate to the total cases - the avereage cases in the San Juan will
-be larger than in Iquitos, Peru by about 30
+Finally, between the two cities, the dengue cases are more prevalent in
+San Juan, puerto rico.
+
+I have included all 4 variables since all of them seems interesting,
+especially with the high difference between the two cities, and the Fall
+season with the other seasons.
+
+## Conclusion
+
+For predicting dengue cases, we have found that the best model is
+gradient boosted tree. This model outperforms both the CART & random
+forest models as the rmse is the minimum for this model among all other
+models. Using the gradient-boosted model we evaluated the partial
+dependence/marginal effects of
+‘specific\_humidity’,‘precipitation\_amt’,‘season’ and ‘city’ on dengue
+cases. We saw that at humidity levels between 18 gram & 19 gram of water
+per kg air, the dengue cases increase exponentially with humidity.
+Moreover, Dengue cases show fluctuating pattern with respect to the
+Amount of rainfall per week. The effect of rainfall on Dangue disease is
+maximum at 75 milimeters of rainfall level but the Dengue cases plateau
+at a rainfall level more than 200 milimeter. The partial dependence plot
+also shows that The dengue cases are severe during the Fall season and
+least severe during spring season.Finally, of the two cities the dengue
+desease is more prevalent in San Juan, puerto rico.
 
 # 3) Predictive model building: green certification
 
 ## 1. Overview
 
--   Our goal is to build the best predictive model possible for revenue
-    per square foot per calendar year
-
--   “revenue per square foot per calendar year” is the product of rent
-    and leasing\_rate in the data
+The goal of this exercise is predict the revenue per square foot per
+calender year of about 8,000 commercial rental properties across the US.
+In addition, some of those properties are green certified which means
+they got green certification from either LEED or Energystar. Another
+question we want to answer is whether being green certified will raise
+total rental revenue or not.
 
 ## 2. Data and Model
 
 ### 2-1 Data
 
--   Green buildings in greenbuildings.csv (7894 commercial rental
-    properties from across United States)
+-   We have used the dataset of Green buildings in greenbuildings.csv
+    (7894 commercial rental properties from across United States)
 -   Of these, 685 properties have been awarded either LEED or EnergyStar
     certification as a green building
--   The detailed explanations of each variables are in the prompt
--   “revenue per square foot per claendar year”(RPS), which will be
-    dependent variable, is the product of rent and leasing\_rate in the
-    data.
--   Excluded CS.PropertyID from the data because it has no meaning for
-    this analysis
+-   In this model “revenue per square foot per claendar year”(RPS), will
+    be dependent variable, which is the product of rent and
+    leasing\_rate in the data.
 
-### 2-2 Model
+### 2-2 Methods
 
-We took 2 steps to get the best predictive model as follow:
+First of all, we have mutated a new column to calculate the revenue per
+square foot per calender year based on the original data. In order to do
+that, we took the product of rent and leasing\_rate. We need to do that
+to get unbiased prediction results since the occupancy or the rent\_rate
+alone won’t reflect the revenue.Here, “revenue per square foot per
+claendar year”(RPS), will be our dependent variable. We have excluded
+CS\_PropertyID variable as this is nothing but an ID number for the
+buildings. We have also excluded Rent & Lease rate from the list of
+independent variables as we used these two variables to find my
+dependent variable of ““revenue per square foot per claendar year”(RPS).
+We collapsed LEED & EnergyStar into ‘Green.rating’ variable.
+
+Next, We needed to make sure that some of the variables are dummy
+variables, so we used the factor command on the 0/1 variables. Then, we
+started working on the model by splitting the data to training set (80%)
+and testing set (20%). We trained the data to predict revenue using
+random forest model & gradient boosting model.
+
+We used three random forest models, and one gradient boosting model to
+measure the efficiency of the predictions.
 
 ### 2-2-1 Model Selection
 
-At first, we did the stepwise selection and the Lasso regression to find
-independent variables that we should include the model. After we got
-both results, we compared two rmses and decided to include variables
-that has the lower rmse.
+We have used total 4 models.In my base model & in all other 3 models, my
+dependend variable is “revenue per square foot per calender year”
 
-Note: Because of the limitation of the time(step wise selection are
-required to take a lot of time), we did not use cross validation to
-improve the quality of our analysis. And we considered LEED and
-EnergyStar separately thorough this analysis.
-
-### 2-2-2 Compared Regressions and Trees
-
-After we decided to use dependent variables in this model, we compared
-models of the “linear regression” and “Knn regression” and the models of
-the “CART”, “Random Forest” and “Boost” from the perspective of the RMSE
-with K-CV(10 folds).
-
-Note: in Tree models, we did not specify dependent variables like linear
-and knn regression, because they automatically consider interaction
-terms.
-
-### 2-2-3 Partial Dependence(Additional)
-
-We also got some partial dependences of the model that had the lowest
-rmse in our models from 2-2-2 to interpret our model.
+We have used a random forest model with all variables as our base model.
+We have already excluded Rent, Lease Rate, CS\_PropertyID , LEED &
+Energystar variables because of the reasons mentioned above. So, after
+our base model, the 2nd model is also a random forest including 6
+variables (City\_Market\_Rent , Electricity\_Costs , size , stories ,
+age & green\_rating) with different importance level for each one of
+them. The 3rd random forest model had 9 variables with many more less
+important variables(City\_Market\_Rent , Electricity\_Costs , size ,
+stories , age , green\_rating,hd\_total07 , total\_dd\_07 &
+total\_dd\_07) . I worried that it is going to overfit the model, so now
+we got to check the rmse for each one of them and compare it with what
+we got in the base model. since we are looking for the best predictive
+model, it is going to be worth it to try to model using gradient
+boosting model with all variables. Here we have used k fold cross
+validation for each model.
 
 ## 3. Results
 
-### 3-1 Model Selection
+Now let’s move on the methodloly used to predict the revenue. At first,
+We have defined the variables& go for train & test split.
 
-From the result, rmses of the stepwise and lasso are
+Now we use 3 different random forest models & 1 gradient boost model for
+prediction.
 
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: right;">step</th>
-<th style="text-align: right;">lasso</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: right;">991.152</td>
-<td style="text-align: right;">2861.317</td>
-</tr>
-</tbody>
-</table>
+From the results, we got the rmse of 3 random forest & 1 Boost model. It
+shows that the minimum RMSE is obtained from Random Forest model 1.
 
-Therefore, we decided to use dependent variables according to the
-stepwise as follow:
+We got partial dependence for ‘green rating’ below of the random forest
+model 1 that had the lowest rmse to interpret our model.
 
-$$
-\begin{aligned}
-RPS&=\beta\_0+\beta(cluster + size +  empl\_gr + stories + age +renovated + class\_a + class\_b  \\\\
-&+ LEED+Energystar+net +amenities+ cd\_total\_07 +hd\_total07 +Precipitation+Gas\_Costs \\\\
-&+Electricity\_Costs +City\_Market\_Rent +size \times City\_Market\_Rent+cluster \times size\\\\
-& +cluster \times City\_Market \\ Rent +stories \times class \\ a +size \times Precipitation \\\\
-& +amenities \times Gas \\ Costs + empl \\ gr \times Electricity \\ Costs +stories \times Gas \\ Costs\\\\
-&+age \times City \\ Market \\ Rent+age \times Electricity \\ Costs+renovated \times Precipitation \\\\
-&+ renovated \times City \\ Market \\ Rent+renovated \times Gas \\ Costs+size \times class \\ b\\\\
-&+ size \times class \\ a+ size \times age+age \times class \\ a\\\\
-&+Electricity \\ Costs \times City \\ Market \\ Rent+renovated \times hd \\ total07\\\\
-&+cluster \times Precipitation+class \\ a \times Gas \\ Costs +class \\ b \times LEED\\\\
-&+size \times hd \\ total07 +hd \\ total07 \times Precipitation + cd \\ total \\ 07 \times Precipitation\\\\
-& +Precipitation \times City \\ Market \\ Rent +Gas \\ Costs \times City \\ Market \\ Rent \\\\
-& +class \\ a \times hd \\ total07 +class \\ a \times Electricity \\ Costs+ size \times Electricity \\ Costs\\\\
-& +empl \\ gr \times renovated+ stories \times renovated+size \times renovated\\\\
-& +class \\ a \times Precipitation +cluster \times Electricity \\ Costs +cluster \times hd \\ total07 \\\\
-& +cluster \times stories+size \times stories +stories \times age)
-\end{aligned}
-$$
+<img src="./fig/p1.png" width="30%" height="50%" style="display: block; margin: auto;" />
 
-### 3-2 Comparison
+The partial dependence graph shows that the green certified buildings
+generate greater rental income per square foot.
 
-From the results, we got the rmse of the linear, knn, CART, Forest,
-Boost, which are
+# \# Conclusion:
 
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: right;">Lm</th>
-<th style="text-align: right;">Knn</th>
-<th style="text-align: right;">CART</th>
-<th style="text-align: right;">Forest</th>
-<th style="text-align: right;">Boost</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: right;">1006.365</td>
-<td style="text-align: right;">1375.176</td>
-<td style="text-align: right;">940.1157</td>
-<td style="text-align: right;">414.1079</td>
-<td style="text-align: right;">817.5708</td>
-</tr>
-</tbody>
-</table>
+Using 4 different predictive modelswith K crossfold validation method ,
+we observe that the base model i.e Random Forest model with all
+independent variables( cluster, City\_Market\_Rent , emp.gr,
+renovated,class, net, amenities, Precipitation, Gas.Costs,
+Electricity\_Costs , size , stories , age , green\_rating,hd\_total07 ,
+total\_dd\_07 , total\_dd\_07) outperformed the other 3 models as it had
+the best predictive power with minimum RMSE value of 127.67. So We would
+recommend to use the base model of Random Forest model with all
+independent variables to predict the revenue per squared foot per
+calender year. We predicted the average value for both certified and
+certified, and as we can see, the green certification has higher partial
+effects i.e such certifications brings more predicted revenue for the
+housing properties. So, Green certification is very important for
+generating superior rental income for the property owners.
 
-Therefore, Forest model had the lowest rmse in this analysis.
-
-### 3-3 Partial Dependence(Additional)
-
-We got some partial dependences of the random forest model that had the
-lowest rmse to interpret our model.
-
-<img src="./fig/size.png" width="30%" height="70%" style="display: block; margin: auto;" /><img src="./fig/stories.png" width="30%" height="70%" style="display: block; margin: auto;" /><img src="./fig/age.png" width="30%" height="70%" style="display: block; margin: auto;" /><img src="./fig/LEED.png" width="30%" height="70%" style="display: block; margin: auto;" /><img src="./fig/Energystar.png" width="30%" height="70%" style="display: block; margin: auto;" /><img src="./fig/Precipitation.png" width="30%" height="70%" style="display: block; margin: auto;" /><img src="./fig/Gas_Costs.png" width="30%" height="70%" style="display: block; margin: auto;" /><img src="./fig/Electricity_Costs.png" width="30%" height="70%" style="display: block; margin: auto;" />
-
-## Conclusion
-
-In our analysis, the forest model was the best predictive model, which
-means it had the lowest rmse in models(linear, knn, CART, random forest,
-boost).
-
-From the partial dependence of the forest model, revenue per square foot
-per year(RPS) will goes up if its size, stories, gas costs and
-electronic costs. Also, if a building had LEED and Energy star, RPS will
-increase but its magnitude of LEED (over 2550)is larger that that of
-Energystar (under 2450) from graphs. The age and precipitation make RPS
-lower, but it looks like not going to do that if it goes over
-thresholds.
-
-## Appendix
-
-The optimal coefficients in the stepwise function
-<img src="./fig/table.png" width="50%" height="50%" style="display: block; margin: auto;" />
+\`\`\`
 
 # Predictive model building: California housing
 

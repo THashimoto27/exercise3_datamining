@@ -4,11 +4,12 @@ author: ""
 date: "`r Sys.Date()`"
 output:
  md_document
- 
 ---
+
+```{=html}
 <!--   pdf_document: default
  md_document -->
-
+```
 ```{r, include=FALSE,eval=FALSE}
 options(tinytex.verbose = TRUE)
 options(dplyr.summarise.inform = FALSE)
@@ -56,7 +57,7 @@ At first, they thought this structure, where the outcome $y$ is crime, a variabl
 knitr::include_graphics("./fig/1.png")
 ```
 
-Because of the endogeneity, they cannot direct regress $y$ on $x$, but they selected the High Alert as $z$ that is positive correlated with $x$. And then they used regress $y$ on $z$ with reduced form like: 
+Because of the endogeneity, they cannot direct regress $y$ on $x$, but they selected the High Alert as $z$ that is positive correlated with $x$. And then they used regress $y$ on $z$ with reduced form like:
 
 $$
 \begin{aligned}
@@ -64,8 +65,7 @@ y_{crime}=\gamma_0+\gamma_1z_{\{High\ Alert\}}+\varepsilon
 \end{aligned}
 $$
 
-where $\beta_1\pi_1$ and $x_{police}=\pi_0+\pi_1z_{\{High\ Alert\}}+v$.
-Since the $x$ and $z$ are positive correlated, the coefficient of the High Alert on Table 2 shows $\beta_1<0$. This means that on the high-alert days, total crimes decrease by an average of seven crimes per day, or approximately 6.6 percent. Also, it means that the more police causes the less crime.
+where $\beta_1\pi_1$ and $x_{police}=\pi_0+\pi_1z_{\{High\ Alert\}}+v$. Since the $x$ and $z$ are positive correlated, the coefficient of the High Alert on Table 2 shows $\beta_1<0$. This means that on the high-alert days, total crimes decrease by an average of seven crimes per day, or approximately 6.6 percent. Also, it means that the more police causes the less crime.
 
 ## 1-3 Why Metro ridership? What was captured?
 
@@ -81,10 +81,35 @@ And, the difference between the High Alert $\times$ District One and the High Al
 
 \newpage
 
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
+library(tidyverse)
+library(lubridate)
+library(randomForest)
+library(gbm)
+library(pdp)
+library(modelr)
+library(rsample)
+library(rpart)
+library(rpart.plot)
+library(caret)
+library(textir)
+library(corrplot)
+library(gridExtra)
+library(GGally)
+library(e1071)
+library(ggthemes)
+library(scales)
+library(class) 
+```
+
+\newpage
+
 # 2) Tree modeling:dengue cases
 
+** for Q2-Q3, other ways that a member did are there [Here](Exercise3_1.md)
+
 ## 1. Overview
-- Our goal is to use CART, random forests, and gradient-boosted trees to predict dengue cases
+- Our goal is to use CART, random forests, and gradient-boosted trees to predict dengue cases. From the best predictive model, we need to make three partial dependence plots on specific_humidity, precipitation_amt & one variable of our choice. 
 
 ## 2. Data and Model
 
@@ -102,38 +127,19 @@ total\ cases = city + season + specific\ humidity+tdtr\ k+precipitation\ amt
 \end{aligned}
 $$
 
-Note: we did not take log for total cases because we thought total cases did not look like it had any trend term as follow:
-```{r , echo=FALSE,fig.width =5.5, fig.height = 2,fig.align='center',eval=FALSE,}
-png("./fig/totalcase.png")
-plot(dengue$total_cases)
-dev.off()
-png("./fig/logtotalcase.png")
-plot(log(dengue$total_cases))
-dev.off()
-```
-
-```{r, echo=FALSE,out.width ="40%", out.height = "40%",fig.align='center',fig.show="hold"}
-knitr::include_graphics("./fig/totalcase.png")
-knitr::include_graphics("./fig/logtotalcase.png")
-```
-Note: the left side shows the total case and right side does the logarithm of the the total case.
-
-## 3. Results and Conclusion
-
-```{r , echo=FALSE,fig.width =5.5, fig.height = 2,fig.align='center',eval=FALSE}
-dengue <- read.csv('dengue.csv')
+## 3. Results
+We have used CART, random forests, and gradient-boosted tree models to predict the dengue cases below. 
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide',eval=FALSE}
+dengue <- read.csv("dengue.csv")
 dengue = dengue %>% drop_na()
-dengue$city = factor(dengue$city)
-dengue$season = factor(dengue$season)
-
-K_folds = 5
-dengue_folds = crossv_kfold(dengue, k=K_folds)
-
+ dengue$city = factor(dengue$city)
+ dengue$season = factor(dengue$season)
+K_folds = 10
+ dengue_folds = crossv_kfold(dengue, k=K_folds)
 cart_cv = map(dengue_folds$train, ~ rpart(total_cases ~ city + season + specific_humidity+tdtr_k+precipitation_amt, data=.))
 forest_cv = map(dengue_folds$train,~randomForest(total_cases ~ city + season + specific_humidity+tdtr_k+precipitation_amt,data=.))
 boost_cv = map(dengue_folds$train,~gbm(total_cases ~ city + season + specific_humidity+tdtr_k+precipitation_amt, 
-               data = ., interaction.depth=4, n.trees=500, shrinkage=.05))
-
+                                      data = ., interaction.depth=4, n.trees=500, shrinkage=.05))
 rmse_cart_cv = mean(map2_dbl(cart_cv, dengue_folds$train, modelr::rmse))
 rmse_forest_cv = mean(map2_dbl(forest_cv, dengue_folds$train, modelr::rmse))
 rmse_boost_cv = mean(map2_dbl(boost_cv, dengue_folds$train, modelr::rmse))
@@ -141,43 +147,55 @@ rmse_boost_cv = mean(map2_dbl(boost_cv, dengue_folds$train, modelr::rmse))
 ```
 
 From the result, these rmse of there models are
-```{r , echo=FALSE,fig.width =5.5, fig.height = 2,fig.align='center'}
-knitr::kable(cbind(cart=24.56930,forest=22.40354, boost=18.50443))
+```{r , echo=FALSE,fig.width =5.5, fig.height = 2,fig.align='center',eval=FALSE}
+rmse_cart_cv
+rmse_forest_cv
+rmse_boost_cv
+knitr::kable(cbind(cart=24.83,forest=22.42, boost=18.53))
 ```
 
-Therefore, the best model to predict dengue cases in this analysis is the gradient-boosted trees.
+Based on the out of sample RMSE, the Gaussian Booster model seems to have the best prediction power. 
 
-Also, three partial dependence plots on specific_humidity, precipitation_amt and city in the boost model are 
-```{r , echo=FALSE,fig.width =5.5, fig.height = 2,fig.align='center',eval=FALSE}
+
+**Now we plot the partial dependence of 4 variables.**
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide',eval=FALSE}
 boost = gbm(total_cases ~ city + season + specific_humidity+tdtr_k+precipitation_amt,data = dengue, interaction.depth=4, n.trees=500, shrinkage=.05)
-p1 = pdp::partial(cart, pred.var = 'specific_humidity')
-p2= pdp::partial(cart, pred.var = 'precipitation_amt')
-p3 = pdp::partial(cart, pred.var = 'city')
 
-png("./fig/specific_humidity.png")
-plot(p1)
+png("./fig/specific_humidity1.png")
+plot(boost, 'specific_humidity')
 dev.off()
-png("./fig/precipitation_amt.png")
-plot(p2)
+png("./fig/precipitation_amt1.png")
+plot(boost, 'precipitation_amt')
 dev.off()
-png("./fig/city.png")
-plot(p3)
+png("./fig/season1.png")
+plot(boost, 'season')
 dev.off()
-
-### Or if we use the boost, we can get the graph directly from the plot
+png("./fig/city1.png")
+plot(boost, 'city')
+dev.off()
 ```
 
 ```{r, echo=FALSE,out.width ="30%", out.height = "50%",fig.align='center',fig.show="hold"}
-knitr::include_graphics("./fig/specific_humidity.png")
-knitr::include_graphics("./fig/precipitation_amt.png")
-knitr::include_graphics("./fig/city.png")
+knitr::include_graphics("./fig/specific_humidity1.png")
+knitr::include_graphics("./fig/precipitation_amt1.png")
+knitr::include_graphics("./fig/season1.png")
+knitr::include_graphics("./fig/city1.png")
 ```
 
-From these graphs, we can get some interpretations in the following: 
-- If average specific humidity(specific_humidity) is over about 19, total cases will increase by 40
-- Rainfall for the week in millimeters does not relate to the total cases
-- the avereage cases in the San Juan will be larger than in Iquitos, Peru by about 30
 
+The graphs above show the partial dependence (marginal effects) of the chosen variables on total cases of dengue based on the Gaussian boosting model.From the partial dependence plot, we see that the specific humidity shows an interesting pattern on predicted dengue cases. When humidity level is more than 15 gram of water per kg of air, the humidity level increases the dengue cases.From 18 gram to 19 gram of humidity level, the dengue cases increases exponentially with the level of humidity. However, the dengue cases slows down and plateau after 20 gram level. 
+Dengue cases shows fluctuating pattern with respect to the Amount of rainfall per week. The dengue cases reach peak when rainfall is at 75 milimeters. At a rainfall level more than 200 milimeter, the dengue cases plateau.
+The dengue cases are severe during the Fall season and least severe during spring season.
+
+Finally, between the two cities, the dengue cases are more prevalent in San Juan, puerto rico. 
+
+
+I have included all 4 variables since all of them seems interesting, especially with the high difference between the two cities, and the Fall season with the other seasons.
+
+## Conclusion
+
+For predicting dengue cases, we have found that the best model is gradient boosted tree. This model outperforms both the CART & random forest models as the rmse is the minimum for this model among all other models. Using the gradient-boosted model we evaluated the partial dependence/marginal effects of 'specific_humidity','precipitation_amt','season' and 'city' on dengue cases. We saw that at humidity levels between 18 gram & 19 gram of water per kg air, the dengue cases increase exponentially with humidity. Moreover, Dengue cases show fluctuating pattern with respect to the Amount of rainfall per week. The effect of rainfall on Dangue disease is maximum at 75 milimeters of rainfall level but the Dengue cases plateau at  a rainfall level more than 200 milimeter. The partial dependence plot also shows that The dengue cases are severe during the Fall season and least severe during spring season.Finally, of the two cities the dengue desease is more prevalent in San Juan, puerto rico. 
 
 \newpage
 
@@ -185,214 +203,107 @@ From these graphs, we can get some interpretations in the following:
 
 ## 1. Overview
 
-- Our goal is to build the best predictive model possible for revenue per square foot per calendar year
+The goal of this exercise is predict the revenue per square foot per calender year of about 8,000 commercial rental properties across the US. In addition, some of those properties are green certified which means they got green certification from either LEED or Energystar. Another question we want to answer is whether being green certified will raise total rental revenue or not.
 
-* "revenue per square foot per calendar year" is the product of rent and leasing_rate in the data
 
 ## 2. Data and Model
 
 ### 2-1 Data
-- Green buildings in greenbuildings.csv (7894 commercial rental properties from across United States)
+- We have used the dataset of Green buildings in greenbuildings.csv (7894 commercial rental properties from across United States)
 - Of these, 685 properties have been awarded either LEED or EnergyStar certification as a green building
-- The detailed explanations of each variables are in the prompt
--  "revenue per square foot per claendar year"(RPS), which will be dependent variable, is the product of rent and leasing_rate in the data.
-- Excluded CS.PropertyID from the data because it has no meaning for this analysis
+- In this model "revenue per square foot per claendar year"(RPS), will be dependent variable, which is the product of rent and leasing_rate in the data.
 
-### 2-2 Model
+### 2-2 Methods
 
-We took 2 steps to get the best predictive model as follow:
+First of all, we have mutated a new column to calculate the revenue per square foot per calender year based on the original data. In order to do that, we took the product of rent and leasing_rate. We need to do that to get unbiased prediction results since the occupancy or the rent_rate alone won't reflect the revenue.Here, "revenue per square foot per claendar year"(RPS), will be our dependent variable. We have excluded CS_PropertyID variable as this is nothing but an ID number for the buildings. We have also excluded Rent & Lease rate from the list of independent variables as we used these two variables to find my dependent variable of ""revenue per square foot per claendar year"(RPS). We collapsed LEED & EnergyStar into 'Green.rating' variable.
+
+Next, We needed to make sure that some of the variables are dummy variables, so we used the factor command on the 0/1 variables. Then, we started working on the model by splitting the data to training set (80%) and testing set (20%). We trained the data to predict revenue using random forest model & gradient boosting model. 
+
+We used three random forest models, and one gradient boosting model to measure the efficiency of the predictions.
+
 
 ### 2-2-1 Model Selection
+We have used total 4 models.In my base model & in all other 3 models, my dependend variable is "revenue per square foot per calender year"
 
-At first, we did the stepwise selection and the Lasso regression to find independent variables that we should include the model. After we got both results, we compared two rmses and decided to include variables that has the lower rmse.
-
-Note: Because of the limitation of the time(step wise selection are required to take a lot of time), we did not use cross validation to improve the quality of our analysis. And we considered LEED and EnergyStar separately thorough this analysis.
-
-
-### 2-2-2 Compared Regressions and Trees
-
-After we decided to use dependent variables in this model, we compared models of the "linear regression" and "Knn regression" and the  models of the "CART", "Random Forest" and "Boost" from the perspective of the RMSE with K-CV(10 folds).
-
-Note: in Tree models, we did not specify dependent variables like linear and knn regression, because they automatically consider interaction terms.
-
-### 2-2-3 Partial Dependence(Additional)
-We also got some partial dependences of the model that had the lowest rmse in our models from 2-2-2 to interpret our model.
+We have used a random forest model with all variables as our base model. We have already excluded Rent, Lease Rate, CS_PropertyID , LEED & Energystar variables because of the reasons mentioned above.
+So, after our base model, the 2nd model is also a random forest including 6 variables (City_Market_Rent , Electricity_Costs , size , stories , age  & green_rating) with different importance level for each one of them. 
+The 3rd random forest model had 9 variables with many more less important variables(City_Market_Rent , Electricity_Costs , size , stories , age , green_rating,hd_total07  , total_dd_07 & total_dd_07) . I worried that it is going to overfit the model, so now we got to check the rmse for each one of them and compare it with what we got in the base model. since we are looking for the best predictive model, it is going to be worth it to try to model using gradient boosting model with all variables. 
+Here we have used k fold cross validation for each model.
 
 ## 3. Results
+ 
+ Now let's move on the methodloly used to predict the revenue. At first, We have defined the variables& go for train & test split. 
 
-### 3-1 Model Selection
 
-```{r , echo=FALSE,fig.width =5.5, fig.height = 2,fig.align='center',eval=FALSE}
-greenbuildings <- read.csv('greenbuildings.csv')
-greenbuildings = greenbuildings %>% drop_na()
-greenbuildings=greenbuildings %>% mutate(rps=Rent*leasing_rate)
-greenbuildings$green_rating <- NULL
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide',eval=FALSE}
+# read in data
+greenbuildings <- read.csv("greenbuildings.csv")
+summary(greenbuildings)
+set.seed(488)
+greenbuildings$renovated = factor(greenbuildings$renovated)
+greenbuildings$class_a = factor(greenbuildings$class_a)
+greenbuildings$class_b = factor(greenbuildings$class_b)
+greenbuildings$LEED = factor(greenbuildings$LEED)
+greenbuildings$Energystar = factor(greenbuildings$Energystar)
+greenbuildings$green_rating = factor(greenbuildings$green_rating)
+greenbuildings$net = factor(greenbuildings$net)
+greenbuildings$amenities = factor(greenbuildings$amenities)
+greenbuildings1 = greenbuildings %>%
+  mutate(revenue = Rent*leasing_rate)
+greenbuildings$CS_PropertyID <- NULL
 greenbuildings$Rent <- NULL
 greenbuildings$leasing_rate <- NULL
-
-data <- as.data.frame(greenbuildings[2:21])
-
-### feature engineering
-
-#### stepwise selection
-lm_medium = lm(rps ~ ., data=data)
-lm_step = step(lm_medium, scope=~(.)^2)
-predicted_step=predict(lm_step,data)
-rmse_step = sqrt(mean((data$rps - predicted_step)^2))
-
-### Lasso
-scx=model.matrix(rps ~ .-1, data=data)
-scy = data$rps
-sclasso = gamlr(scx, scy, family="poisson")
-predicted_lasso= predict(sclasso,scx)
-rmse_lasso = sqrt(mean((data$rps - predicted_lasso)^2))
-
-#c(step=rmse_step, lasso=rmse_lasso)
+set.seed(488)
+greenbuildings1_split =  initial_split(greenbuildings1, prop=0.8)
+greenbuildings1_split_train = training(greenbuildings1_split)
+greenbuildings1_split_test  = testing(greenbuildings1_split)
 ```
+Now we use 3 different random forest models & 1 gradient boost model for prediction. 
 
-From the result, rmses of the stepwise and lasso are
-```{r , echo=FALSE,fig.width =5.5, fig.height = 2,fig.align='center'}
-knitr::kable(cbind(step=991.152,lasso=2861.317))
-```
-
-Therefore, we decided to use dependent variables according to the stepwise as follow:
-
-$$
-\begin{aligned}
-RPS&=\beta_0+\beta(cluster + size +  empl_gr + stories + age +renovated + class_a + class_b  \\
-&+ LEED+Energystar+net +amenities+ cd_total_07 +hd_total07 +Precipitation+Gas_Costs \\
-&+Electricity_Costs +City_Market_Rent +size \times City_Market_Rent+cluster \times size\\
-& +cluster \times City_Market \ Rent +stories \times class \ a +size \times Precipitation \\
-& +amenities \times Gas \ Costs + empl \ gr \times Electricity \ Costs +stories \times Gas \ Costs\\
-&+age \times City \ Market \ Rent+age \times Electricity \ Costs+renovated \times Precipitation \\
-&+ renovated \times City \ Market \ Rent+renovated \times Gas \ Costs+size \times class \ b\\
-&+ size \times class \ a+ size \times age+age \times class \ a\\
-&+Electricity \ Costs \times City \ Market \ Rent+renovated \times hd \ total07\\
-&+cluster \times Precipitation+class \ a \times Gas \ Costs +class \ b \times LEED\\
-&+size \times hd \ total07 +hd \ total07 \times Precipitation + cd \ total \ 07 \times Precipitation\\
-& +Precipitation \times City \ Market \ Rent +Gas \ Costs \times City \ Market \ Rent \\
-& +class \ a \times hd \ total07 +class \ a \times Electricity \ Costs+ size \times Electricity \ Costs\\
-& +empl \ gr \times renovated+ stories \times renovated+size \times renovated\\
-& +class \ a \times Precipitation +cluster \times Electricity \ Costs +cluster \times hd \ total07 \\
-& +cluster \times stories+size \times stories +stories \times age)
-\end{aligned}
-$$
-
-### 3-2 Comparison
-
-```{r , echo=FALSE,fig.width =5.5, fig.height = 2,fig.align='center',eval=FALSE}
-### Comparison(linear, knn, CART,Forest, Boost)
+```{r, echo=FALSE, message=FALSE, warning=FALSE,eval=FALSE}
 K_folds = 5
-gb_folds = crossv_kfold(data, k=K_folds)
+gb_folds = crossv_kfold(greenbuildings1, k=K_folds)
+forest_cv1 = map(gb_folds$train,~randomForest(revenue ~ ., data=greenbuildings1_split_train, na.action = na.exclude))
+rmse_forest_cv1 = mean(map2_dbl(forest_cv1, gb_folds$train, modelr::rmse))
 
-#### Scaling
-scale = apply(data, 2, sd)
-data_tilde = scale(data , scale = scale) %>% as.data.frame
-data_tilde$rps <- NULL
-data_cv <- as.data.frame(cbind(data$rps, data_tilde))
-names(data_cv)[names(data_cv)=="data$rps"] <- "rps"
+forest_cv2 = map(gb_folds$train,~randomForest(revenue ~ City_Market_Rent + Electricity_Costs + size + stories + age + green_rating  ,data=greenbuildings1_split_train, na.action = na.exclude))
+rmse_forest_cv2 = mean(map2_dbl(forest_cv2, gb_folds$train, modelr::rmse))
 
-#### Linear regression
+forest_cv3 = map(gb_folds$train,~ randomForest(revenue ~  City_Market_Rent + Electricity_Costs + size + stories + age + hd_total07  + total_dd_07 + total_dd_07 + green_rating,data=greenbuildings1_split_train, na.action = na.exclude))
+rmse_forest_cv3 = mean(map2_dbl(forest_cv3, gb_folds$train, modelr::rmse))
 
-model_lm_cv = map(gb_folds$train, ~ lm(rps ~ cluster + size +  empl_gr + stories + age +renovated + class_a + class_b  + LEED+Energystar+net +amenities+ cd_total_07 +hd_total07 +Precipitation+Gas_Costs +Electricity_Costs +City_Market_Rent +size:City_Market_Rent+cluster:size+cluster:City_Market_Rent +stories:class_a +size:Precipitation +amenities:Gas_Costs + empl_gr:Electricity_Costs +stories:Gas_Costs+age:City_Market_Rent+age:Electricity_Costs+renovated:Precipitation + renovated:City_Market_Rent+renovated:Gas_Costs+size:class_b+ size:class_a+ size:age+age:class_a+Electricity_Costs:City_Market_Rent+renovated:hd_total07+cluster:Precipitation+class_a:Gas_Costs +class_b:LEED+size:hd_total07 +hd_total07:Precipitation + cd_total_07:Precipitation+Precipitation:City_Market_Rent +Gas_Costs:City_Market_Rent +class_a:hd_total07 +class_a:Electricity_Costs+ size:Electricity_Costs+empl_gr:renovated+ stories:renovated+size:renovated+class_a:Precipitation +cluster:Electricity_Costs +cluster:hd_total07 +cluster:stories+size:stories +stories:age ,data=.))
-rmse_lm_cv = mean(map2_dbl(model_lm_cv, gb_folds$test, modelr::rmse))
-
-#### KNN regression
-model_knncv = foreach(k = 1:200, .combine='rbind') %do% {
-  models1 = map(gb_folds$train, ~ knnreg(rps ~ cluster + size +  empl_gr + stories + age +renovated + class_a + class_b  + LEED+Energystar+net +amenities+ cd_total_07 +hd_total07 +Precipitation+Gas_Costs +Electricity_Costs +City_Market_Rent +size:City_Market_Rent+cluster:size+cluster:City_Market_Rent +stories:class_a +size:Precipitation +amenities:Gas_Costs + empl_gr:Electricity_Costs +stories:Gas_Costs+age:City_Market_Rent+age:Electricity_Costs+renovated:Precipitation + renovated:City_Market_Rent+renovated:Gas_Costs+size:class_b+ size:class_a+ size:age+age:class_a+Electricity_Costs:City_Market_Rent+renovated:hd_total07+cluster:Precipitation+class_a:Gas_Costs +class_b:LEED+size:hd_total07 +hd_total07:Precipitation + cd_total_07:Precipitation+Precipitation:City_Market_Rent +Gas_Costs:City_Market_Rent +class_a:hd_total07 +class_a:Electricity_Costs+ size:Electricity_Costs+empl_gr:renovated+ stories:renovated+size:renovated+class_a:Precipitation +cluster:Electricity_Costs +cluster:hd_total07 +cluster:stories+size:stories +stories:age, k=k, data = ., use.all=FALSE))
-  errs1 = map2_dbl(models1, gb_folds$test, modelr::rmse)
-  c(k=k, err = mean(errs1), std_err = sd(errs1)/sqrt(K_folds))
-} %>% as.data.frame
-
-knn_min_rmse=model_knncv[model_knncv$err==min(model_knncv$err),]
-
-#### CART
-cart_cv = map(gb_folds$train, ~ rpart(rps ~ ., data=.,control = rpart.control(cp = 0.002, minsplit=30)))
-rmse_cart_cv = mean(map2_dbl(cart_cv, gb_folds$train, modelr::rmse))
-
-#### Forest
-forest_cv = map(gb_folds$train,~randomForest(rps ~ .,data=.))
-rmse_forest_cv = mean(map2_dbl(forest_cv, gb_folds$train, modelr::rmse))
-
-#### Boost
-boost_cv = map(gb_folds$train,~gbm(rps ~ ., data = ., interaction.depth=4, n.trees=500, shrinkage=.05))
-rmse_boost_cv = mean(map2_dbl(boost_cv, gb_folds$train, modelr::rmse))
-
-#c(rmse_lm_cv,knn_min_rmse$err,rmse_cart_cv,rmse_forest_cv,rmse_boost_cv)
+boost_cv4 = map(gb_folds$train,~gbm(revenue ~., 
+ data =greenbuildings1_split_train,interaction.depth=4, n.trees=350, shrinkage=.02))
+rmse_boost_cv4 = mean(map2_dbl(boost_cv4, gb_folds$train, modelr::rmse))
+```
+From the results, we got the rmse of 3 random forest & 1 Boost model. It shows that the minimum RMSE is obtained from Random Forest model 1.
+```{r, echo=FALSE, message=FALSE, warning=FALSE,eval=FALSE}
+knitr::kable(cbind(rmse_forest_cv1=127.6707,rmse_forest_cv2=496.0568, rmse_forest_cv3=589.1672, rmse_boost_cv4=195.9265))
 ```
 
-From the results, we got the rmse of the linear, knn, CART, Forest, Boost, which are
+We got partial dependence for 'green rating' below of the random forest model 1 that had the lowest rmse to interpret our model.
 
-```{r , echo=FALSE,fig.width =5.5, fig.height = 2,fig.align='center'}
-knitr::kable(cbind(Lm=1006.3655,Knn=1375.1760,CART=940.1157,Forest=414.1079,Boost=817.5708))
+```{r, echo=FALSE, message=FALSE, warning=FALSE,eval=FALSE}
+Forest=randomForest(revenue ~.  ,data=greenbuildings1_split_train, na.action = na.exclude)
+
+p1 = pdp::partial(Forest, pred.var = 'green_rating', n.trees=350)
+png("./fig/p1.png")
+plot(p1)
+dev.off()
 ```
 
-Therefore, Forest model had the lowest rmse in this analysis.
-
-### 3-3 Partial Dependence(Additional)
-
-We got some partial dependences of the random forest model that had the lowest rmse to interpret our model.
-
-```{r , echo=FALSE,fig.width =5.5, fig.height = 2,fig.align='center',eval=FALSE}
-forest = randomForest(rps ~ .,data=data)
-p1 = pdp::partial(forest, pred.var = 'size', n.trees=350)
-p2= pdp::partial(forest, pred.var = 'stories', n.trees=350)
-p3 = pdp::partial(forest, pred.var = 'age', n.trees=350)
-p4 = pdp::partial(forest, pred.var = 'LEED', n.trees=350)
-p5 = pdp::partial(forest, pred.var = 'Energystar', n.trees=350)
-p6 = pdp::partial(forest, pred.var = 'Precipitation', n.trees=350)
-p7 = pdp::partial(forest, pred.var = 'Gas_Costs', n.trees=350)
-p8 = pdp::partial(forest, pred.var = 'Electricity_Costs', n.trees=350)
-
-#png("./fig/size.png")
-#plot(p1)
-#dev.off()
-#png("./fig/stories.png")
-#plot(p2)
-#dev.off()
-#png("./fig/age.png")
-#plot(p3)
-#dev.off()
-#png("./fig/LEED.png")
-#plot(p4)
-#dev.off()
-#png("./fig/Energystar.png")
-#plot(p5)
-#dev.off()
-#png("./fig/Precipitation.png")
-#plot(p6)
-#dev.off()
-#png("./fig/Gas_Costs.png")
-#plot(p7)
-#dev.off()
-#png("./fig/Electricity_Costs.png")
-#plot(p8)
-#dev.off()
+```{r, echo=FALSE,out.width ="30%", out.height = "50%",fig.align='center',fig.show="hold"}
+knitr::include_graphics("./fig/p1.png")
 ```
 
-```{r, echo=FALSE,out.width ="30%", out.height = "70%",fig.align='center',fig.show="hold"}
-knitr::include_graphics("./fig/size.png")
-knitr::include_graphics("./fig/stories.png")
-knitr::include_graphics("./fig/age.png")
-knitr::include_graphics("./fig/LEED.png")
-knitr::include_graphics("./fig/Energystar.png")
-knitr::include_graphics("./fig/Precipitation.png")
-knitr::include_graphics("./fig/Gas_Costs.png")
-knitr::include_graphics("./fig/Electricity_Costs.png")
-```
+The partial dependence graph shows that the green certified buildings generate greater rental income per square foot. 
 
-## Conclusion
+# # Conclusion: 
 
-In our analysis, the forest model was the best predictive model, which means it had the lowest rmse in models(linear, knn, CART, random forest, boost).
-
-From the partial dependence of the forest model, revenue per square foot per year(RPS) will goes up if its size, stories, gas costs and electronic costs. Also, if a building had LEED and Energy star, RPS will increase but its magnitude of LEED (over 2550)is larger that that of Energystar (under 2450) from graphs. The age and precipitation make RPS lower, but it looks like not going to do that if it goes over thresholds.
+Using 4 different predictive modelswith K crossfold validation method , we observe that the base model i.e Random Forest model with all independent variables( cluster, City_Market_Rent , emp.gr, renovated,class, net, amenities, Precipitation, Gas.Costs, Electricity_Costs , size , stories , age , green_rating,hd_total07  , total_dd_07 , total_dd_07) outperformed the other 3 models as it had the best predictive power with minimum RMSE value of 127.67. So We would recommend to use the base model of Random Forest model with all independent variables to predict the revenue per squared foot per calender year.
+We predicted the average value for both certified and certified, and as we can see, the green certification has higher partial effects i.e such certifications brings more predicted revenue for the housing properties. So, Green certification is very important for generating superior rental income for the property owners.
 
 
-## Appendix
-
-The optimal coefficients in the stepwise function
-```{r, echo=FALSE,out.width ="50%", out.height = "50%",fig.align='center',fig.show="hold"}
-knitr::include_graphics(c("./fig/table.png"))
 ```
 
 \newpage
@@ -401,13 +312,13 @@ knitr::include_graphics(c("./fig/table.png"))
 
 ## 1. Overview
 
-- My goal is to build the best predictive model you can for medianHouseValue
+-   My goal is to build the best predictive model you can for medianHouseValue
 
 ## 2. Data and Model
 
 ### 2-1 Data
 
--  CAhousing.csv
+-   CAhousing.csv
 
 ### 2-2 Model
 
@@ -415,9 +326,9 @@ We took 3 steps to get the best predictive model as follow:
 
 we have used machine learning tools to provide with reliable predictions. So, we have used the random forest model, which utilizes the interaction effects of the variables.
 
-1. I mutated to new columns to standardized the total rooms and total bedrooms by dividing each variable by households variable. Then, I split the data into 80% training set and 20% testing set and regress medianHousevalue on all the variables to test for the importance of each variables afterward. 
+1.  I mutated to new columns to standardized the total rooms and total bedrooms by dividing each variable by households variable. Then, I split the data into 80% training set and 20% testing set and regress medianHousevalue on all the variables to test for the importance of each variables afterward.
 
-2. we did two other specification models with different variables based on the results of the variables importance.
+2.  we did two other specification models with different variables based on the results of the variables importance.
 
 $$
 \begin{aligned}
@@ -427,18 +338,18 @@ Model3:\quad medianHouseValue&= \beta[ medianIncome + longitude + latitude + tot
 \end{aligned}
 $$
 
-* totalRooms_st = totalRooms/households
+-   totalRooms_st = totalRooms/households
 
-3. model has the lowest root mean squared error which equals to 47,989.
+3.  model has the lowest root mean squared error which equals to 47,989.
 
 In order to check for room of improvements, we ran a gradient boosting model with many different shrinkage rates, but we could not have a lower rmse value than that found using the selected random forest model.
 
-
-4. Plot
+4.  Plot
 
 we decided to continue with the results of the optimal random forest model and predict the median housing values based on the testing set. Then we plottod the original observation which has the shape of California State, the predicted values based on the testing set, and the estimated residuals which is the difference between the two.
 
 ### 3. Results
+
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide',eval=FALSE}
 CAhousing = read.csv('CAhousing.csv')
 
@@ -490,7 +401,6 @@ CA_Boost_rmse = rmse_boost)
 CA_models_summary
 ```
 
-
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide',eval=FALSE}
 CA_plot_org = ggplot(CAhousing1) +
  aes(x = longitude, y = latitude, colour = medianHouseValue) +
@@ -524,6 +434,7 @@ CA_plot_resid = ggplot(CAhousing1_split_test1) +
 ```
 
 The overall out-of-sample accuracy of our proposed model is
+
 ```{r, echo=FALSE,out.width ="30%", out.height = "70%",fig.align='center',fig.show="hold"}
 knitr::kable(cbind(CA_RFM1_rmse=48630.96, CA_RFM2_rmse=48572.76,CA_RFM3_rmse=47998.16, CA_Boost_rmse= 51663.24))
 ```
