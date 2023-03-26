@@ -106,7 +106,7 @@ library(class)
 
 # 2) Tree modeling:dengue cases
 
-** for Q2-Q3, other ways that a member did are there [Here](Exercise3_1.md)
+** for Q2-Q3, other ways that a member did are there [Here](https://github.com/THashimoto27/exercise3_datamining/blob/main/Exercises3_1.md)
 
 ## 1. Overview
 - Our goal is to use CART, random forests, and gradient-boosted trees to predict dengue cases. From the best predictive model, we need to make three partial dependence plots on specific_humidity, precipitation_amt & one variable of our choice. 

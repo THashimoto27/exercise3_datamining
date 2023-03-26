@@ -77,7 +77,7 @@ some two crimes per day, or more than 12 percent.
 # 2) Tree modeling:dengue cases
 
 \*\* for Q2-Q3, other ways that a member did are there
-[Here](Exercise3_1.md)
+[Here](https://github.com/THashimoto27/exercise3_datamining/blob/main/Exercises3_1.md)
 
 ## 1. Overview
 
