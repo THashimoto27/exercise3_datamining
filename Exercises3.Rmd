@@ -426,6 +426,7 @@ Model2:\quad medianHouseValue&= \beta[ medianIncome + longitude + latitude + tot
 Model3:\quad medianHouseValue&= \beta[ medianIncome + longitude + latitude + totalRooms_{st} + population + housingMedianAge+const.] \\
 \end{aligned}
 $$
+
 * totalRooms_st = totalRooms/households
 
 3. model has the lowest root mean squared error which equals to 47,989.
@@ -433,7 +434,11 @@ $$
 In order to check for room of improvements, we ran a gradient boosting model with many different shrinkage rates, but we could not have a lower rmse value than that found using the selected random forest model.
 
 
-### 2-3 Results
+4. Plot
+
+we decided to continue with the results of the optimal random forest model and predict the median housing values based on the testing set. Then we plottod the original observation which has the shape of California State, the predicted values based on the testing set, and the estimated residuals which is the difference between the two.
+
+### 3. Results
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide',eval=FALSE}
 CAhousing = read.csv('CAhousing.csv')
 
@@ -523,7 +528,7 @@ The overall out-of-sample accuracy of our proposed model is
 knitr::kable(cbind(CA_RFM1_rmse=48630.96, CA_RFM2_rmse=48572.76,CA_RFM3_rmse=47998.16, CA_Boost_rmse= 51663.24))
 ```
 
-Also, the three fugutres that required to be plotted (1)a plot of the original data, (2)a plot of your model's predictions of medianHouseValue, (3)a plot of your model's errors/residuals are:
+Three figures(row) that required to be plotted (1)a plot of the original data, (2)a plot of your model's predictions of medianHouseValue, (3)a plot of your model's errors/residuals are:
 
 ```{r, echo=FALSE,out.width ="50%", out.height = "70%",fig.align='center'}
 knitr::include_graphics("./fig/CA_org.png")
@@ -531,5 +536,50 @@ knitr::include_graphics("./fig/CA_yhat.png")
 knitr::include_graphics("./fig/CA_resid.png")
 ```
 
+Also, these fugures in the real california map are
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide',eval=FALSE}
+CA <- map_data("county", "california") %>% 
+  select(lon = long, lat, group, id = subregion)
+
+CA_geomplot_org= ggplot() +
+  geom_polygon(data= CA, aes(lon, lat, group = group), fill = "white", colour = "grey50") + 
+  coord_quickmap()+ geom_point(data=CAhousing1, aes(x = longitude, y = latitude, colour = medianHouseValue))+
+ labs(title = "California Median House Value", 
+ subtitle = "Original Data Plot") +
+ theme_minimal() + scale_color_continuous(labels = scales::comma)
+
+CA_geomplot_yhat= ggplot() +
+  geom_polygon(data= CA, aes(lon, lat, group = group), fill = "white", colour = "grey50") + 
+  coord_quickmap()+ geom_point(data=CAhousing1_split_test1, aes(x = longitude, y = latitude, colour = yhat))+
+ labs(title = "California Median House Value", 
+ subtitle = "Predicted Plot") +
+ theme_minimal() + scale_color_continuous(labels = scales::comma)
 
 
+CA_geomplot_resid = ggplot() +
+  geom_polygon(data= CA, aes(lon, lat, group = group), fill = "white", colour = "grey50") + 
+  coord_quickmap()+geom_point(data=CAhousing1_split_test1, aes(x = longitude, y = latitude, colour = yhat))+
+ labs(title = "California Median House Value", subtitle = "Residuals Plot") +
+ theme_minimal() + scale_color_continuous(labels = scales::comma)
+
+png("./fig/CA_org2.png")
+CA_geomplot_org
+dev.off()
+png("./fig/CA_yhat2.png")
+CA_geomplot_yhat
+dev.off()
+png("./fig/CA_resid2.png")
+CA_geomplot_resid
+dev.off()
+```
+
+```{r, echo=FALSE,out.width ="50%", out.height = "70%",fig.align='center'}
+knitr::include_graphics("./fig/CA_org2.png")
+knitr::include_graphics("./fig/CA_yhat2.png")
+knitr::include_graphics("./fig/CA_resid2.png")
+```
+
+### 4. Conclusion
+
+From the result, median House value in the area of San Francisco bay area and Los Angels are higher than other areas in the real data and predicted data. Also, the area of lower median house value in the prediction looks like the same as that in the real. Therefore, our prediction model shows good performance visually to predict median house values.

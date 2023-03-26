@@ -334,7 +334,8 @@ Model2:\quad medianHouseValue&= \beta\[ medianIncome + longitude + latitude + to
 Model3:\quad medianHouseValue&= \beta\[ medianIncome + longitude + latitude + totalRooms\_{st} + population + housingMedianAge+const.\] \\\\
 \end{aligned}
 $$
-\* totalRooms\_st = totalRooms/households
+
+-   totalRooms\_st = totalRooms/households
 
 1.  model has the lowest root mean squared error which equals to 47,989.
 
@@ -342,7 +343,15 @@ In order to check for room of improvements, we ran a gradient boosting
 model with many different shrinkage rates, but we could not have a lower
 rmse value than that found using the selected random forest model.
 
-### 2-3 Results
+1.  Plot
+
+we decided to continue with the results of the optimal random forest
+model and predict the median housing values based on the testing set.
+Then we plottod the original observation which has the shape of
+California State, the predicted values based on the testing set, and the
+estimated residuals which is the difference between the two.
+
+### 3. Results
 
 The overall out-of-sample accuracy of our proposed model is
 
@@ -365,8 +374,21 @@ The overall out-of-sample accuracy of our proposed model is
 </tbody>
 </table>
 
-Also, the three fugutres that required to be plotted (1)a plot of the
-original data, (2)a plot of your model’s predictions of
-medianHouseValue, (3)a plot of your model’s errors/residuals are:
+Three figures(row) that required to be plotted (1)a plot of the original
+data, (2)a plot of your model’s predictions of medianHouseValue, (3)a
+plot of your model’s errors/residuals are:
 
 <img src="./fig/CA_org.png" width="50%" height="70%" style="display: block; margin: auto;" /><img src="./fig/CA_yhat.png" width="50%" height="70%" style="display: block; margin: auto;" /><img src="./fig/CA_resid.png" width="50%" height="70%" style="display: block; margin: auto;" />
+
+Also, these fugures in the real california map are
+
+<img src="./fig/CA_org2.png" width="50%" height="70%" style="display: block; margin: auto;" /><img src="./fig/CA_yhat2.png" width="50%" height="70%" style="display: block; margin: auto;" /><img src="./fig/CA_resid2.png" width="50%" height="70%" style="display: block; margin: auto;" />
+
+### 4. Conclusion
+
+From the result, median House value in the area of San Francisco bay
+area and Los Angels are higher than other areas in the real data and
+predicted data. Also, the area of lower median house value in the
+prediction looks like the same as that in the real. Therefore, our
+prediction model shows good performance visually to predict median house
+values.
