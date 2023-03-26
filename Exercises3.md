@@ -295,7 +295,7 @@ thresholds.
 ## Appendix
 
 The optimal coefficients in the stepwise function
-<img src="./fig/table.png" width="80%" height="50%" style="display: block; margin: auto;" />
+<img src="./fig/table.png" width="50%" height="50%" style="display: block; margin: auto;" />
 
 # Predictive model building: California housing
 

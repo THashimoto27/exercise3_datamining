@@ -391,7 +391,7 @@ From the partial dependence of the forest model, revenue per square foot per yea
 ## Appendix
 
 The optimal coefficients in the stepwise function
-```{r, echo=FALSE,out.width ="80%", out.height = "50%",fig.align='center',fig.show="hold"}
+```{r, echo=FALSE,out.width ="50%", out.height = "50%",fig.align='center',fig.show="hold"}
 knitr::include_graphics(c("./fig/table.png"))
 ```
 
