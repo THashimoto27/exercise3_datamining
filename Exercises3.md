@@ -165,7 +165,7 @@ I have included all 4 variables since all of them seems interesting,
 especially with the high difference between the two cities, and the Fall
 season with the other seasons.
 
-## Conclusion
+## 4. Conclusion
 
 For predicting dengue cases, we have found that the best model is
 gradient boosted tree. This model outperforms both the CART & random
@@ -269,7 +269,7 @@ model 2 that had the lowest rmse to interpret our model.
 The partial dependence graph shows that the green certified buildings
 generate greater rental income per square foot.
 
-## Conclusion:
+## 4. Conclusion
 
 Using 4 different predictive modelswith K crossfold validation method ,
 we observe that the 2nd Random Forest model with 6 independent
