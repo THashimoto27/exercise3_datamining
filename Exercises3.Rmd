@@ -317,7 +317,7 @@ We predicted the average value for both certified and certified, and as we can s
 
 \newpage
 
-# Predictive model building: California housing
+# 4) Predictive model building: California housing
 
 ## 1. Overview
 

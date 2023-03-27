@@ -284,7 +284,7 @@ effects i.e such certifications brings more predicted revenue for the
 housing properties. So, Green certification is very important for
 generating superior rental income for the property owners.
 
-# Predictive model building: California housing
+# 4) Predictive model building: California housing
 
 ## 1. Overview
 
