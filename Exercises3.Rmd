@@ -130,7 +130,7 @@ $$
 ## 3. Results
 We have used CART, random forests, and gradient-boosted tree models to predict the dengue cases below. 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
-dengue <- read.csv("/Users/arindamchatterjee/Documents/GitHub/ECO395M/data/dengue.csv")
+dengue <- read.csv("dengue.csv")
 dengue = dengue %>% drop_na()
  dengue$city = factor(dengue$city)
  dengue$season = factor(dengue$season)
@@ -216,7 +216,7 @@ Here we have used k fold cross validation for each model.
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, results='hide'}
 # read in data
-greenbuildings <- read.csv("/Users/arindamchatterjee/Documents/GitHub/ECO395M/data/greenbuildings.csv")
+greenbuildings <- read.csv("greenbuildings.csv")
 summary(greenbuildings)
 set.seed(488)
 greenbuildings$renovated = factor(greenbuildings$renovated)
