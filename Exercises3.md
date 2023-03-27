@@ -3,17 +3,25 @@
 
 # 1) What causes what?
 
-## 1-1 Why we can’t regress crime on police?
+## 1-1 Why can’t I just get data from a few different cities and run the regression of “Crime” on “Police” to understand how more cops in the streets affect crime? (“Crime” refers to some measure of crime rate and “Police” measures the number of cops in a city.)
 
-Because we can’t misunderstand the causal effect between crime and
-police. As the podcast said, in Washington DC, a lot of extra police
-officers are hired even if the crime rate is low because of preparing
-terrorism. However, in general, high crime cities have an incentive to
-hire a lot of cops. Therefore, if you regress crime on police in a few
-different cities like DC, you probably misunderstand the effect. So you
-can’t do this.
+Because we can’t understand the causal effect between crime and police.
+At first we learn as the podcast said and also according to the author
+of the book that there could be a way of establishing a causal
+relationship between - at least in Washington, D.C.A lot of extra police
+officers are hired even if the crime rate is low because of some
+terrorism alert. Now, when you have extra police there for
+terrorism-related reasons, they’re on the streets, they make the streets
+safer, and things like murder, robbery, assault go down as in there was
+less victimes on the street. But when this hypothesis was checked by
+looking at ridership levels on the Metro system, and they actually were
+not diminished on high-terror days, so it was suggested and confirmed
+that the number of victims was largely unchanged. Therefore, if we
+regress crime on police from a few different cities like D.C., we will
+probably misunderstand the effect as it’s tough to establish the
+causality. So, we can’t do this.
 
-## 1-2 How can a professor identify the causal effect?
+## 1-2 How were the researchers from UPenn able to isolate this effect? Briefly describe their approach and discuss their result in the “Table 2” below, from the researchers’ paper.
 
 They found that when the terror alert level goes up, extra police are
 put on the mall in other parts of Washington to protect against
@@ -21,18 +29,20 @@ terrorists has nothing to do with street crime. Also then, the streets
 were safer(the number of murder, robbery, assault goes down).
 
 To show this causality, they regressed the crime on the High Alert, and
-got the result of the Table 2. This background of the regression is as
-follow:
+got the result of the Table 2, i.e. one unit increase in high alert
+causes the crime rate to go down by 7.316 unit. This background of the
+regression is as follow:
 
 At first, they thought this structure, where the outcome *y* is crime, a
-variable that want to shows the causality *x*, and a instrument variable
+variable that want to show the causality *x*, and a instrument variable
 *z* is the High Alert.
 
 <img src="./fig/1.png" width="40%" style="display: block; margin: auto;" />
 
 Because of the endogeneity, they cannot direct regress *y* on *x*, but
-they selected the High Alert as *z* that is positive correlated with
-*x*. And then they used regress *y* on *z* with reduced form like:
+they selected the High Alert as an instrument, *z* that is positive
+correlated with *x*. And then they used regress *y* on *z* with reduced
+form like:
 
 $$
 \begin{aligned}
@@ -48,31 +58,41 @@ the high-alert days, total crimes decrease by an average of seven crimes
 per day, or approximately 6.6 percent. Also, it means that the more
 police causes the less crime.
 
-## 1-3 Why Metro ridership? What was captured?
+## 1-3 Why did they have to control for Metro ridership? What was that trying to capture?
 
 According to their talks, they concerned about the possibility that
-tourist were less likely to visit Washington DC if the High Alert was
+tourist were less likely to visit Washington D.C. if the High Alert was
 announced, and what tourist were less likely to visit caused less crime.
 To check this hypothesis, they added a variable of the scaled Metro
 Ridership into the regression model.
 
 And then, they found that the coefficient of the High Alert is still
 negative even if they added its variable. Therefore, they concluded that
-if the same number of tourists, the more police causes the less crime as
-well as the result 1-2.
+the number of victims was largely unchanged. Thus we will probably
+misunderstand the effect as it’s tough to establish the causality.
 
-### 1-4
+### 1-4 Below I am showing you “Table 4” from the researchers’ paper. Just focus on the first column of the table. Can you describe the model being estimated here? What is the conclusion?
 
-This model is DID model, which control group is other district and
-treatment group is District 1.
+This model is Difference In Difference model, which control group is
+other district and treatment group is District 1.
 
-And, the difference between the High Alert × District One and the High
+Firstly, a clustering approach has been used to cluster by district. And
+then, the difference between the High Alert × District One and the High
 Alert × Other Districts coefficients represents the effect of District 1
 on the crime under the setting that controls for all common factors
-between the districts. They found that even after controlling for all
-such factors and recognizing that our assumption is too strong, we still
-find that crime decreases in District 1 during high-alert periods by
-some two crimes per day, or more than 12 percent.
+between the districts. The most of the increased police attention falls
+on District 1 because of the presence in that district of the White
+House, Congress, Supreme Court, and so forth. It is revealing to take
+this argument one step further and assume that all of the increased
+protection falls on District 1. In this case, the difference between the
+High Alert \# District One and the High Alert \# Other Districts
+coefficients is a difference- in-difference estimator that controls for
+all common factors between the districts. The difference-in-difference
+estimator controls for any factors such as weather, tourism, or other
+events that affect the districts similarly. Even after controlling for
+all such factors and recognizing that our assumption is too strong, we
+still find that crime decreases in District 1 during high-alert periods
+by some two crimes per day or more than 12 percent.
 
 # 2) Tree modeling:dengue cases
 
