@@ -199,7 +199,7 @@ Finally, between the two cities, the dengue cases are more prevalent in San Juan
 
 I have included all 4 variables since all of them seems interesting, especially with the high difference between the two cities, and the Fall season with the other seasons.
 
-## Conclusion
+## 4. Conclusion
 
 For predicting dengue cases, we have found that the best model is gradient boosted tree. This model outperforms both the CART & random forest models as the rmse is the minimum for this model among all other models. Using the gradient-boosted model we evaluated the partial dependence/marginal effects of 'specific_humidity','precipitation_amt','season' and 'city' on dengue cases. We saw that at humidity levels between 18 gram & 19 gram of water per kg air, the dengue cases increase exponentially with humidity. Moreover, Dengue cases show fluctuating pattern with respect to the Amount of rainfall per week. The effect of rainfall on Dangue disease is maximum at 75 milimeters of rainfall level but the Dengue cases plateau at  a rainfall level more than 200 milimeter. The partial dependence plot also shows that The dengue cases are severe during the Fall season and least severe during spring season.Finally, of the two cities the dengue desease is more prevalent in San Juan, puerto rico.
 
@@ -307,7 +307,7 @@ knitr::include_graphics("./fig/p1.png")
 
 The partial dependence graph shows that the green certified buildings generate greater rental income per square foot. 
 
-## Conclusion: 
+## 4. Conclusion
 
 Using 4 different predictive modelswith K crossfold validation method , we observe that the 2nd Random Forest model with 6 independent variables( City_Market_Rent, Electricity_Costs , size , stories , age  & green_rating ) outperformed the other 3 models as it had the best predictive power with minimum RMSE value of 493.18. So We would recommend to use the 2nd Random Forest model with 6 important independent variables to predict the revenue per squared foot per calender year.
 We predicted the average value for both certified and certified, and as we can see, the green certification has higher partial effects i.e such certifications brings more predicted revenue for the housing properties. So, Green certification is very important for generating superior rental income for the property owners.
